@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="form-section">
+  <h2>Anlieferung aktualisieren</h2>
+  <article class="delivery-summary">
+    <h3>{{ delivery['supplier'] }} · {{ delivery['part_number'] }}</h3>
+    <div class="summary-grid">
+      <div>
+        <strong>Lieferschein:</strong> {{ delivery['delivery_note'] }}<br>
+        <strong>Bestellung:</strong> {{ delivery['purchase_order'] }}<br>
+        <strong>Menge:</strong> {{ delivery['quantity_expected'] }} {{ delivery['unit'] }}
+      </div>
+      <div>
+        <strong>Status:</strong> {{ status_labels[delivery['status']] }}<br>
+        <strong>Priorität:</strong> {{ delivery['priority']|default('normal')|capitalize }}<br>
+        <strong>Erfasst am:</strong> {{ delivery['created_at']|replace('T', ' ') }}
+      </div>
+      <div>
+        {% if delivery['part_description'] %}
+          <strong>Beschreibung:</strong> {{ delivery['part_description'] }}<br>
+        {% endif %}
+        {% if delivery['inspection_required'] %}
+          <span class="badge badge-info">Prüfpflichtig</span>
+        {% endif %}
+        {% if delivery['certificate_received'] %}
+          <span class="badge badge-success">Zeugnis vorliegend</span>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+
+  <form method="post" class="form-grid">
+    <div class="form-field">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        {% for code, label in status_labels.items() %}
+          <option value="{{ code }}" {% if delivery['status'] == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="inspector">Prüfer/in</label>
+      <input type="text" id="inspector" name="inspector" value="{{ delivery['inspector'] or '' }}">
+    </div>
+    <div class="form-field">
+      <label for="quantity_received">Geprüfte Menge</label>
+      <input type="number" min="0" id="quantity_received" name="quantity_received" value="{{ delivery['quantity_received'] or '' }}">
+    </div>
+    <div class="form-field">
+      <label for="storage_location">Lagerort</label>
+      <input type="text" id="storage_location" name="storage_location" value="{{ delivery['storage_location'] or '' }}" placeholder="z. B. HB-01-03">
+    </div>
+    <div class="form-field">
+      <label for="priority">Priorität</label>
+      <select id="priority" name="priority">
+        {% set priority = delivery['priority'] or 'normal' %}
+        <option value="niedrig" {% if priority == 'niedrig' %}selected{% endif %}>Niedrig</option>
+        <option value="normal" {% if priority == 'normal' %}selected{% endif %}>Normal</option>
+        <option value="hoch" {% if priority == 'hoch' %}selected{% endif %}>Hoch</option>
+        <option value="kritisch" {% if priority == 'kritisch' %}selected{% endif %}>Kritisch</option>
+      </select>
+    </div>
+    <div class="form-field checkbox">
+      <label>
+        <input type="checkbox" name="certificate_received" {% if delivery['certificate_received'] %}checked{% endif %}>
+        Prüfzeugnis liegt vor
+      </label>
+    </div>
+    <div class="form-field full">
+      <label for="comments">Prüfbemerkungen</label>
+      <textarea id="comments" name="comments" rows="4" placeholder="Messwerte, Abweichungen, Beanstandungen...">{{ delivery['comments'] or '' }}</textarea>
+    </div>
+    <div class="form-field full">
+      <label for="next_action">Nächste Schritte</label>
+      <textarea id="next_action" name="next_action" rows="3" placeholder="z. B. Nacharbeit beauftragen, Sperrlager">{{ delivery['next_action'] or '' }}</textarea>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="button">Speichern</button>
+      <a class="button secondary" href="{{ url_for('index') }}">Zurück</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="form-section">
+  <h2>Neue Anlieferung erfassen</h2>
+  <form method="post" class="form-grid">
+    <div class="form-field required">
+      <label for="supplier">Lieferant</label>
+      <input type="text" id="supplier" name="supplier" value="{{ form_data.get('supplier', '') }}" required>
+    </div>
+    <div class="form-field required">
+      <label for="delivery_note">Lieferscheinnummer</label>
+      <input type="text" id="delivery_note" name="delivery_note" value="{{ form_data.get('delivery_note', '') }}" required>
+    </div>
+    <div class="form-field required">
+      <label for="purchase_order">Bestellnummer</label>
+      <input type="text" id="purchase_order" name="purchase_order" value="{{ form_data.get('purchase_order', '') }}" required>
+    </div>
+    <div class="form-field required">
+      <label for="part_number">Artikelnummer</label>
+      <input type="text" id="part_number" name="part_number" value="{{ form_data.get('part_number', '') }}" required>
+    </div>
+    <div class="form-field">
+      <label for="part_description">Artikelbeschreibung</label>
+      <input type="text" id="part_description" name="part_description" value="{{ form_data.get('part_description', '') }}">
+    </div>
+    <div class="form-field">
+      <label for="quantity_expected">Bestellte Menge</label>
+      <input type="number" min="0" id="quantity_expected" name="quantity_expected" value="{{ form_data.get('quantity_expected', '') }}">
+    </div>
+    <div class="form-field">
+      <label for="quantity_received">Anliefermenge</label>
+      <input type="number" min="0" id="quantity_received" name="quantity_received" value="{{ form_data.get('quantity_received', '') }}">
+    </div>
+    <div class="form-field">
+      <label for="unit">Mengeneinheit</label>
+      <input type="text" id="unit" name="unit" value="{{ form_data.get('unit', 'Stk') }}">
+    </div>
+    <div class="form-field">
+      <label for="priority">Priorität</label>
+      <select id="priority" name="priority">
+        {% set selected_priority = form_data.get('priority', 'normal') %}
+        <option value="niedrig" {% if selected_priority == 'niedrig' %}selected{% endif %}>Niedrig</option>
+        <option value="normal" {% if selected_priority == 'normal' %}selected{% endif %}>Normal</option>
+        <option value="hoch" {% if selected_priority == 'hoch' %}selected{% endif %}>Hoch</option>
+        <option value="kritisch" {% if selected_priority == 'kritisch' %}selected{% endif %}>Kritisch</option>
+      </select>
+    </div>
+    <div class="form-field checkbox">
+      <label>
+        <input type="checkbox" name="inspection_required" {% if form_data.get('inspection_required') %}checked{% endif %}>
+        Wareneingangsprüfung erforderlich
+      </label>
+    </div>
+    <div class="form-field checkbox">
+      <label>
+        <input type="checkbox" name="certificate_received" {% if form_data.get('certificate_received') %}checked{% endif %}>
+        Prüfzeugnis liegt vor
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="button">Anlieferung speichern</button>
+      <a class="button secondary" href="{{ url_for('index') }}">Abbrechen</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

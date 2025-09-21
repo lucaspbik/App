@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard">
+  <h2>Wareneingang Übersicht</h2>
+  <div class="status-summary">
+    {% for status, label in status_labels.items() %}
+      <div class="status-card {{ status_classes[status] }} {% if active_status == status %}active{% endif %}">
+        <div class="status-label">{{ label }}</div>
+        <div class="status-count">{{ stats[status] }}</div>
+        <a href="{{ url_for('index', status=status) }}" class="status-link">Filtern</a>
+      </div>
+    {% endfor %}
+    <div class="status-card {{ 'all' if not active_status else '' }} {% if not active_status %}active{% endif %}">
+      <div class="status-label">Alle Vorgänge</div>
+      <div class="status-count">{{ total_count }}</div>
+      <a href="{{ url_for('index') }}" class="status-link">Zurücksetzen</a>
+    </div>
+  </div>
+</section>
+
+<section class="table-section">
+  <div class="section-header">
+    <h2>Aktuelle Lieferungen</h2>
+    <a class="button" href="{{ url_for('create_delivery') }}">Neue Anlieferung erfassen</a>
+  </div>
+  {% if active_status %}
+    <p class="filter-hint">
+      Gefiltert nach: <strong>{{ status_labels[active_status] }}</strong> · {{ deliveries|length }} Vorgänge
+      <a href="{{ url_for('index') }}">Filter entfernen</a>
+    </p>
+  {% endif %}
+  {% if deliveries %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Lieferant</th>
+            <th>Lieferschein</th>
+            <th>Bestell-/Artikelnummer</th>
+            <th>Menge</th>
+            <th>Status</th>
+            <th>Priorität</th>
+            <th>Letzte Aktivität</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for delivery in deliveries %}
+            <tr class="{{ status_classes[delivery['status']] }}">
+              <td data-label="Lieferant">
+                <strong>{{ delivery['supplier'] }}</strong><br>
+                <small>{{ delivery['part_description'] }}</small>
+              </td>
+              <td data-label="Lieferschein">
+                {{ delivery['delivery_note'] }}<br>
+                <small>Bestellung: {{ delivery['purchase_order'] }}</small>
+              </td>
+              <td data-label="Artikelnummer">
+                {{ delivery['part_number'] }}
+              </td>
+              <td data-label="Menge">
+                {% if delivery['quantity_received'] %}
+                  {{ delivery['quantity_received'] }} / {{ delivery['quantity_expected'] }} {{ delivery['unit'] }}
+                {% else %}
+                  {{ delivery['quantity_expected'] }} {{ delivery['unit'] }}
+                {% endif %}
+                {% if delivery['inspection_required'] %}
+                  <span class="badge badge-info">Prüfpflichtig</span>
+                {% endif %}
+                {% if delivery['certificate_received'] %}
+                  <span class="badge badge-success">Zeugnis liegt vor</span>
+                {% endif %}
+              </td>
+              <td data-label="Status">
+                <span class="badge badge-status">{{ status_labels[delivery['status']] }}</span>
+              </td>
+              <td data-label="Priorität">
+                <span class="badge badge-priority priority-{{ delivery['priority']|default('normal') }}">
+                  {{ delivery['priority']|default('normal')|capitalize }}
+                </span>
+              </td>
+              <td data-label="Aktivität">
+                <small>Erfasst: {{ delivery['created_at']|replace('T', ' ') }}</small><br>
+                {% if delivery['inspected_at'] %}
+                  <small>Geprüft: {{ delivery['inspected_at']|replace('T', ' ') }}</small>
+                {% endif %}
+                {% if delivery['storage_location'] %}
+                  <div class="badge badge-location">Lager: {{ delivery['storage_location'] }}</div>
+                {% endif %}
+                {% if delivery['next_action'] %}
+                  <div class="next-action">Nächster Schritt: {{ delivery['next_action'] }}</div>
+                {% endif %}
+              </td>
+              <td class="actions" data-label="Aktionen">
+                <a class="button secondary" href="{{ url_for('update_delivery', delivery_id=delivery['id']) }}">Bearbeiten</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty-state">Noch keine Anlieferungen vorhanden. Legen Sie den ersten Wareneingang an.</p>
+  {% endif %}
+</section>
+{% endblock %}

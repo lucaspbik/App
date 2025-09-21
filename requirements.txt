@@ -1,0 +1,2 @@
+# Dieses Projekt benötigt keine externen Laufzeit-Abhängigkeiten.
+# Optional kann pytest für Tests installiert werden.

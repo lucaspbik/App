@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ company_name }} · Wareneingang</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container">
+        <h1>{{ company_name }} · Wareneingang</h1>
+        <nav>
+          <a href="{{ url_for('index') }}" class="nav-link">Übersicht</a>
+          <a href="{{ url_for('create_delivery') }}" class="nav-link highlight">Anlieferung erfassen</a>
+        </nav>
+      </div>
+    </header>
+    <main class="container">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, message in messages %}
+              <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="app-footer">
+      <div class="container">
+        <small>Digitale Wareneingangsabwicklung für den Maschinenbau – {{ company_name }}</small>
+      </div>
+    </footer>
+  </body>
+</html>
