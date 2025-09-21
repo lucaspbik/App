@@ -1,57 +1,58 @@
 # Wareneingang App für den Maschinenbau
 
-Diese Flask-Anwendung digitalisiert den Wareneingang in einem Maschinenbauunternehmen. Sie unterstützt Einkauf, Wareneingang und Qualitätssicherung bei der Erfassung von Anlieferungen sowie der Dokumentation von Prüfungen und Nacharbeit.
+Diese Anwendung digitalisiert den Wareneingang in einem Maschinenbauunternehmen. Sie basiert vollständig auf der Python-Standardbibliothek und benötigt keine externen Web-Frameworks. Die Geschäftslogik und die Tests laufen damit auch in Umgebungen ohne Internetzugang zuverlässig.
 
 ## Funktionsumfang
 
-- **Dashboard** mit Status-Kacheln und Filterfunktion (angemeldet, in Prüfung, freigegeben, Nacharbeit, gesperrt)
-- **Erfassung neuer Anlieferungen** inkl. Pflichtfeldern, Mengen, Priorität, Prüfpflicht und Zeugnisstatus
-- **Wareneingangsprüfung** mit Dokumentation von Prüfer, geprüfter Menge, Lagerort, Kommentaren und nächsten Schritten
-- **Statusverfolgung** mit Zeitstempeln für Erfassung und Prüfung
-- Responsives Layout für Tablets / mobile Geräte
+- **Erfassung neuer Anlieferungen** über `POST /deliveries/new`
+- **Aktualisierung und Prüfprotokoll** bestehender Wareneingänge über `POST /deliveries/<id>/inspect`
+- **Übersichtsseite** (`GET /`) mit Statussummen und optionaler Filterung per `?status=...`
+- Speicherung aller Datensätze in einer SQLite-Datenbank
 
 ## Projektstruktur
 
 ```
-app.py                # Einstiegspunkt
-waren_eingang/        # Flask-Anwendung
-├── __init__.py       # App-Factory, Routen, DB-Setup
-├── templates/        # HTML-Templates (Jinja)
-└── static/css/       # Stylesheet
+app.py                # Einstiegspunkt mit Serverstart
+waren_eingang/        # Mini-Webframework + Geschäftslogik
+└── __init__.py       # Application-Factory, Routing und DB-Zugriff
 ```
+
+Die vorhandenen HTML- und CSS-Dateien können für spätere UI-Erweiterungen genutzt werden, sind für den Betrieb jedoch nicht erforderlich.
 
 ## Installation & Start
 
-1. Virtuelle Umgebung anlegen (optional):
+1. Stellen Sie sicher, dass Python 3.11 oder höher installiert ist.
+2. Weitere Pakete müssen nicht installiert werden.
+3. Starten Sie den integrierten Entwicklungsserver:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate
+   python app.py
    ```
-2. Abhängigkeiten installieren:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Anwendung starten:
-   ```bash
-   flask --app app run
-   ```
+4. Die Anwendung lauscht standardmäßig auf `http://127.0.0.1:8000`.
 
-Die SQLite-Datenbank wird automatisch erzeugt (`waren_eingang/waren_eingang.sqlite`).
+Beim ersten Start wird automatisch eine SQLite-Datenbank (`waren_eingang.sqlite`) im Projektverzeichnis erzeugt.
+
+## API-Beispiele
+
+### Neuen Wareneingang anlegen
+
+```bash
+curl -X POST http://127.0.0.1:8000/deliveries/new   -d "supplier=Bosch"   -d "delivery_note=LS-42"   -d "purchase_order=PO-42"   -d "part_number=AB-123"   -d "quantity_expected=10"
+```
+
+### Wareneingang aktualisieren
+
+```bash
+curl -X POST http://127.0.0.1:8000/deliveries/1/inspect   -d "status=accepted"   -d "inspector=QS-Meyer"   -d "quantity_received=10"
+```
 
 ## Tests
 
-Automatisierte Tests prüfen das Anlegen und Aktualisieren von Wareneingängen:
-
 ```bash
-pytest
+python -m pytest
 ```
 
-## Anpassungsmöglichkeiten
-
-- In `waren_eingang/__init__.py` kann über `COMPANY_NAME` der Firmenname angepasst werden.
-- Status-Optionen und Farbkennzeichnungen lassen sich über `STATUS_CHOICES` / `STATUS_CLASSES` erweitern.
-- Weitere Felder können in der Tabelle `deliveries` ergänzt werden (z. B. Chargennummern, Dokumentenlinks).
+Pytest ist in vielen Python-Distributionen bereits enthalten. Falls nicht, kann es optional nachinstalliert werden.
 
 ## Lizenz
 
-Dieses Beispielprojekt kann frei erweitert und an individuelle Prozesse angepasst werden.
+Dieses Beispielprojekt darf frei erweitert und an individuelle Abläufe angepasst werden.

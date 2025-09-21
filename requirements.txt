@@ -1,2 +1,2 @@
-Flask>=2.3,<3.0
-pytest>=7.4
+# Dieses Projekt benötigt keine externen Laufzeit-Abhängigkeiten.
+# Optional kann pytest für Tests installiert werden.
